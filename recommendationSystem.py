@@ -5,7 +5,7 @@ import pickle
 
 
 class RecommendationSystem():
-    def __init__(self, userId, mealType, recipesDataFrame):
+    def __init__(self, userId, recipesDataFrame):
         self.recipeNames = recipesDataFrame[0].values.tolist()
         recipesDataFrame.drop(0, inplace=True, axis=1)
         self.vectorizedRecipes = recipesDataFrame.to_numpy()
