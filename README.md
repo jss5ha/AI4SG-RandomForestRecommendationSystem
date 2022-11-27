@@ -1,2 +1,2 @@
-# diet-and-exercise-rec-system
+# RandomForestRecommendationSystem
 AI4ssocialgoodproject
