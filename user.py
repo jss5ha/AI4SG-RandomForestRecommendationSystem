@@ -1,6 +1,10 @@
+import pandas as pd
+
+
 class User:
-    def __init__(self, userId, usersDataFrame):
+    def __init__(self, userId):
         self.userId = userId
+        usersDataFrame = pd.read_csv("data/user_data.csv")
         userExists = len(
             usersDataFrame[usersDataFrame["userid"] == self.userId]) == 1
         if userExists:

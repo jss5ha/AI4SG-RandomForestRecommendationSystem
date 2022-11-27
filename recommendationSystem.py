@@ -1,76 +1,55 @@
 from sklearn.ensemble import RandomForestRegressor
 import numpy as np
+import os
+import pickle
 
 
 class RecommendationSystem():
-    def __init__(self, rs, names):
-        self.rs = rs
-        self.names = names
-        self.userRatings = [0.5] * rs.shape[0]
-        self.rec_ed = []
-        self.model.fit(self.rs, self.userRatings)
+    def __init__(self, userId, mealType, recipesDataFrame):
+        self.recipeNames = recipesDataFrame[0].values.tolist()
+        recipesDataFrame.drop(0, inplace=True, axis=1)
+        self.vectorizedRecipes = recipesDataFrame.to_numpy()
+        self.numberOfRecipes = self.vectorizedRecipes.shape[0]
+        self.modelPath = f"user_models/{userId}.pickle"
+        self.setModelAndRatings()
+        self.recommendedRecipesIdxSoFar = []
+        self.recentRecommendedRecipesIdx = []
 
-    def createModel(self):
-        self.model = RandomForestRegressor(n_estimators=10, max_depth=3)
-        self.userRatings = [0.5] * rs.shape[0]
-        self.model.fit(self.rs, self.userRatings)
+    def setModelAndRatings(self):
+        if os.path.isfile(self.modelPath):
+            self.model = pickle.load(open(self.modelPath, "rb"))
+            self.ratings = self.model.predict(self.vectorizedRecipes)
+        else:
+            self.model = RandomForestRegressor(n_estimators=10, max_depth=3)
+            self.ratings = [0.5] * self.numberOfRecipes
+            self.model.fit(self.vectorizedRecipes, self.ratings)
 
     def retrainModel(self, updatedRatings):
         count = 0
-        for item in self.rec_idx_this_round:
-            self.userRatings[item] = updatedRatings[count]
+        for item in self.recentRecommendedRecipesIdx:
+            self.ratings[item] = updatedRatings[count]
             count += 1
-        self.model.fit(self.rs, self.userRatings)
+        self.model.fit(self.vectorizedRecipes, self.ratings)
 
-    def rec(self, k, same=0):
-        results = self.model.predict(self.rs)
-        rec_rs = np.array(results).argsort()
-        rec_idx = []
+    def getKRecommendations(self, k, recommendSameRecipes=False):
+        recipeRatingPredictions = self.model.predict(self.vectorizedRecipes)
+        sortedRecipesIdx = np.array(recipeRatingPredictions).argsort()
+        newRecommendedRecipesIdx = []
 
-        if same == 1:
-            rec_idx = rec_rs[-k:]
+        if recommendSameRecipes == True:
+            newRecommendedRecipesIdx = sortedRecipesIdx[-k:]
         else:
-            for i in range(rec_rs.shape[0]):
-                if rec_rs[rec_rs.shape[0]-1-i] not in self.rec_ed:
-                    rec_idx.append(rec_rs[rec_rs.shape[0]-1-i])
-                    self.rec_ed.append(rec_rs[rec_rs.shape[0]-1-i])
-                if len(rec_idx) == k:
+            for i in range(sortedRecipesIdx.shape[0]):
+                if sortedRecipesIdx[sortedRecipesIdx.shape[0]-1-i] not in self.recommendedRecipesIdxSoFar:
+                    newRecommendedRecipesIdx.append(
+                        sortedRecipesIdx[sortedRecipesIdx.shape[0]-1-i])
+                    self.recommendedRecipesIdxSoFar.append(
+                        sortedRecipesIdx[sortedRecipesIdx.shape[0]-1-i])
+                if len(newRecommendedRecipesIdx) == k:
                     break
 
-        self.rec_idx_this_round = rec_idx
-        return np.array(self.names)[rec_idx]
+        self.recentRecommendedRecipesIdx = newRecommendedRecipesIdx
+        return np.array(self.recipeNames)[newRecommendedRecipesIdx]
 
-
-def getRecommendations(userId, recipes):
-    print(recipes)
-    # names = df['title'].values.tolist()  # first column of the df
-    # df.drop('title', inplace=True, axis=1)
-    # rec_model = RecommendationSystem(rs, names)
-    # while True:
-    #     print("Then how many recipes do you want today?")
-    #     the_k = int(input())
-    #     rec_prediction = rec_model.rec(the_k, same)
-
-    #     print("Success - We've got your recipe recommendations for today!")
-
-    #     for i in range(the_k):
-    #         print("Recipe " + str(i + 1) + ":")
-    #         print(str(rec_prediction[i]))
-
-    #     # ask user to rate
-    #     print("Hope you enjoy your meals for today :)\n")
-    #     print("Waiting for you to complete you meal...")
-    #     print("How do you like the recommendations for today?")
-    #     ratings = []
-
-    #     for i in range(the_k):
-    #         print("Please rate today's recipe " + str(i + 1) + " - " +
-    #               str(rec_prediction[i]) + " (min = 0, max = 5):")
-    #         ratings.append(float(int(input()) / 5))
-
-    #     # update database
-    #     rec_model.preference_update(ratings)
-
-    #     # collect users' satisfaction level
-    #     print("Please rate today's recommendation in general (min = 0, max = 100):")
-    #     satis.append(input())
+    def save(self):
+        pickle.dump(self.model, open(self.modelPath, "wb"))
