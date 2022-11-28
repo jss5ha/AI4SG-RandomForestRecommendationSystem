@@ -6,16 +6,6 @@ import pickle
 import os
 
 
-def getMealType():
-    mealType = input(
-        'What kind of meal are you looking for? (breakfast, lunch, dinner) ').lower()
-    while mealType not in ['breakfast', 'lunch', 'dinner']:
-        print("Invalid Meal Type")
-        mealType = input(
-            'What kind of meal are you looking for? (breakfast, lunch, dinner) ').lower()
-    return mealType
-
-
 def getUser():
     userId = input("Please enter user id: ").lower()
     user = User(userId)
@@ -24,25 +14,27 @@ def getUser():
 
 def getFilteredRecipes():
     recipes = pd.read_csv('data/recipes.csv').values.tolist()
-    mealType = getMealType()
-    knowledgeBasedFilter = KnowledgeBasedFilter(user, mealType)
+    knowledgeBasedFilter = KnowledgeBasedFilter(user)
     filteredRecipes = knowledgeBasedFilter.getFilteredRecipes(recipes)
     filteredRecipesDataFrame = pd.DataFrame(filteredRecipes)
     return filteredRecipesDataFrame
 
 
 def showRecommendations():
-    k = int(input("\nHow many recipes do you want? "))
-    samePreference = input(
-        "\nDo you want to try some different recipes? [yes / no] ")
-    recommendSameRecipes = False if samePreference == "yes" else True
+    recommendSameRecipes = True
+    recommendedRecipes = []
+    while True:
+        recommendedRecipes = recommendationSystem.getRecommendations(
+            recommendSameRecipes)
 
-    recommendedRecipes = recommendationSystem.getKRecommendations(
-        k, recommendSameRecipes)
+        print("\nSuccess - We've got your recipe recommendations!")
+        for idx, recipe in enumerate(recommendedRecipes):
+            print(f"({idx+1}) {recipe}")
 
-    print("\nSuccess - We've got your recipe recommendations!")
-    for idx, recipe in enumerate(recommendedRecipes):
-        print(f"({idx+1}) {recipe}")
+        if input("\nWould you like to proceed with these recipes? [y/n] ").lower() == "y":
+            break
+        else:
+            recommendSameRecipes = False
 
     # ask user to rate
     print("\nHope you enjoy your meals for today :)\n")
@@ -64,7 +56,7 @@ def getUserSatisfactionRatings(userId):
     else:
         satisfactionScores = []
     satisfactionScores.append(int(
-        input("Please rate today's recommendation in general (min = 0, max = 100): ")))
+        input("\nPlease rate today's recommendation in general (min = 0, max = 100): ")))
     pickle.dump(satisfactionScores, open(overallRatingsPath, "wb"))
 
 
@@ -79,12 +71,7 @@ if __name__ == "__main__":
     recommendationSystem = RecommendationSystem(
         user.userId, filteredRecipesDataFrame)
 
-    while True:
-        showRecommendations()
-        exitLoop = False if input(
-            "\nWould you like to continue [yes/no] ").lower() == "yes" else True
-        if exitLoop:
-            recommendationSystem.save()
-            # collect user's overall satisfaction level
-            getUserSatisfactionRatings(user.userId)
-            break
+    showRecommendations()
+    recommendationSystem.save()
+    # collect user's overall satisfaction level
+    getUserSatisfactionRatings(user.userId)

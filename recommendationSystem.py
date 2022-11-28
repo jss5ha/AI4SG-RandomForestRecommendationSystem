@@ -12,7 +12,7 @@ class RecommendationSystem():
         self.numberOfRecipes = self.vectorizedRecipes.shape[0]
         self.modelPath = f"user_models/{userId}.pickle"
         self.setModelAndRatings()
-        self.recommendedRecipesIdxSoFar = []
+        self.recommendedRecipesIdxSoFar = set()
         self.recentRecommendedRecipesIdx = []
 
     def setModelAndRatings(self):
@@ -31,22 +31,23 @@ class RecommendationSystem():
             count += 1
         self.model.fit(self.vectorizedRecipes, self.ratings)
 
-    def getKRecommendations(self, k, recommendSameRecipes=False):
+    def getRecommendations(self, recommendSameRecipes=False):
         recipeRatingPredictions = self.model.predict(self.vectorizedRecipes)
         sortedRecipesIdx = np.array(recipeRatingPredictions).argsort()
         newRecommendedRecipesIdx = []
 
         if recommendSameRecipes == True:
-            newRecommendedRecipesIdx = sortedRecipesIdx[-k:]
+            newRecommendedRecipesIdx = sortedRecipesIdx[-min(
+                3, sortedRecipesIdx.shape[0]):]
         else:
             for i in range(sortedRecipesIdx.shape[0]):
                 if sortedRecipesIdx[sortedRecipesIdx.shape[0]-1-i] not in self.recommendedRecipesIdxSoFar:
                     newRecommendedRecipesIdx.append(
                         sortedRecipesIdx[sortedRecipesIdx.shape[0]-1-i])
-                    self.recommendedRecipesIdxSoFar.append(
-                        sortedRecipesIdx[sortedRecipesIdx.shape[0]-1-i])
-                if len(newRecommendedRecipesIdx) == k:
-                    break
+                    if len(newRecommendedRecipesIdx) == 3:
+                        break
+
+        self.recommendedRecipesIdxSoFar.update(newRecommendedRecipesIdx)
 
         self.recentRecommendedRecipesIdx = newRecommendedRecipesIdx
         return np.array(self.recipeNames)[newRecommendedRecipesIdx]

@@ -1,5 +1,5 @@
 class KnowledgeBasedFilter:
-    def __init__(self, user, mealType):
+    def __init__(self, user, mealType=None):
         self.user = user
         self.mealType = mealType
 
@@ -76,13 +76,7 @@ class KnowledgeBasedFilter:
             case 'maintain weight':
                 TDEE = TDEE
 
-        match self.mealType:
-            case 'breakfast':
-                requiredCalories = TDEE * (3 / 12)
-            case 'lunch':
-                requiredCalories = TDEE * (4 / 12)
-            case 'dinner':
-                requiredCalories = TDEE * (5 / 12)
+        requiredCalories = TDEE * (4 / 12)
 
         return requiredCalories
 
