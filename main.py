@@ -50,6 +50,10 @@ def showRecommendations():
         # update model
         recommendationSystem.retrainModel(ratings)
 
+        if dayCount % 3 == 0:
+            print(
+                "\nPlease take the survey: https://virginia.az1.qualtrics.com/jfe/form/SV_9oi2R7WEZb6tF9c")
+
         dayCount += 1
 
 

@@ -1,4 +1,5 @@
 import pandas as pd
+import math
 
 
 class User:
@@ -26,7 +27,8 @@ class User:
         self.age = userData[4]
         self.activityLevel = userData[5]
         self.goal = userData[6]
-        self.dietaryRestrictions = userData[7].split(":")
+        self.dietaryRestrictions = userData[7].split(
+            ":") if not math.isnan(userData[7]) else []
 
     def setNewUserData(self):
         self.setGender()
