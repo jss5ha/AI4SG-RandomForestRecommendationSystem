@@ -38,9 +38,9 @@ class KnowledgeBasedFilter:
             if (float(thisRecipe[3]) > requiredProtein + 15 or float(thisRecipe[3]) < requiredProtein - 15) and not removed:
                 recipes.remove(thisRecipe)
                 removed = True
-            if (float(thisRecipe[4]) > requiredFat + 15 or float(thisRecipe[4]) < requiredFat - 15) and not removed:
-                recipes.remove(thisRecipe)
-                removed = True
+            # if (float(thisRecipe[4]) > requiredFat + 15 or float(thisRecipe[4]) < requiredFat - 15) and not removed:
+            #     recipes.remove(thisRecipe)
+            #     removed = True
             if not removed:
                 index += 1
         return recipes
@@ -76,7 +76,7 @@ class KnowledgeBasedFilter:
             case 'maintain weight':
                 TDEE = TDEE
 
-        requiredCalories = TDEE * (4 / 12)
+        requiredCalories = TDEE * (1 / 3)
 
         return requiredCalories
 
