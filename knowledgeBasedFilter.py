@@ -9,15 +9,14 @@ class KnowledgeBasedFilter:
         pescatarian = 354
         glutenFree = 542
         for restriction in self.user.dietaryRestrictions:
-            match restriction:
-                case "vegetarian":
-                    indexToRemove = vegetarian
-                case "pescatarian":
-                    indexToRemove = pescatarian
-                case "gluten-free":
-                    indexToRemove = glutenFree
-                case _:
-                    raise Exception("Invalid User Dietary Restriction")
+            if restriction == "vegetarian":
+                indexToRemove = vegetarian
+            elif restriction == "pescatarian":
+                indexToRemove = pescatarian
+            elif restriction == "gluten-free":
+                indexToRemove = glutenFree
+            else:
+                raise Exception("Invalid User Dietary Restriction")
             index = 0
             while index != len(recipes):
                 if recipes[index][indexToRemove] != 1:
@@ -54,27 +53,25 @@ class KnowledgeBasedFilter:
             BMR = 66 + (13.7 * int(self.user.weight)) + (
                 5 * int(self.user.height)) - (6.8 * int(self.user.age))
 
-        match self.user.activityLevel:
-            case 'sedentary':
-                activityMultiplier = 1.2
-            case 'lightly active':
-                activityMultiplier = 1.375
-            case 'moderately active':
-                activityMultiplier = 1.55
-            case 'very active':
-                activityMultiplier = 1.725
-            case 'extremely active':
-                activityMultiplier = 1.9
+        if self.user.activityLevel == 'sedentary':
+            activityMultiplier = 1.2
+        elif self.user.activityLevel == 'lightly active':
+            activityMultiplier = 1.375
+        elif self.user.activityLevel == 'moderately active':
+            activityMultiplier = 1.55
+        elif self.user.activityLevel == 'very active':
+            activityMultiplier = 1.725
+        elif self.user.activityLevel == 'extremely active':
+            activityMultiplier = 1.9
 
         TDEE = BMR * activityMultiplier
 
-        match self.user.goal:
-            case 'gain weight':
-                TDEE += 300
-            case 'lose weight':
-                TDEE *= .8
-            case 'maintain weight':
-                TDEE = TDEE
+        if self.user.goal == 'gain weight':
+            TDEE += 300
+        elif self.user.goal == 'lose weight':
+            TDEE *= .8
+        elif self.user.goal == 'maintain weight':
+            TDEE = TDEE
 
         requiredCalories = TDEE * (1 / 3)
 
