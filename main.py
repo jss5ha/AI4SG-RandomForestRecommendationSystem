@@ -23,29 +23,34 @@ def getFilteredRecipes():
 def showRecommendations():
     recommendSameRecipes = True
     recommendedRecipes = []
-    while True:
-        recommendedRecipes = recommendationSystem.getRecommendations(
-            recommendSameRecipes)
+    dayCount = 1
+    while dayCount <= 24:
+        while True:
+            recommendedRecipes = recommendationSystem.getRecommendations(
+                recommendSameRecipes)
 
-        print("\nSuccess - We've got your recipe recommendations!")
+            print(
+                f"\nSuccess - We've got your recipe recommendations for day {dayCount}!")
+            for idx, recipe in enumerate(recommendedRecipes):
+                print(f"({idx+1}) {recipe}")
+
+            if input("\nWould you like to proceed with these recipes? [y/n] ").lower() == "y":
+                break
+            else:
+                recommendSameRecipes = False
+
+        # ask user to rate
+        print("\nHope you enjoy your meals for today :)\n")
+        ratings = []
+
         for idx, recipe in enumerate(recommendedRecipes):
-            print(f"({idx+1}) {recipe}")
+            ratings.append(
+                int(input(f"Please rate today's recipe - {recipe} (min = 0, max = 5): ")) / 5)
 
-        if input("\nWould you like to proceed with these recipes? [y/n] ").lower() == "y":
-            break
-        else:
-            recommendSameRecipes = False
+        # update model
+        recommendationSystem.retrainModel(ratings)
 
-    # ask user to rate
-    print("\nHope you enjoy your meals for today :)\n")
-    ratings = []
-
-    for idx, recipe in enumerate(recommendedRecipes):
-        ratings.append(
-            int(input(f"Please rate today's recipe - {recipe} (min = 0, max = 5): ")) / 5)
-
-    # update model
-    recommendationSystem.retrainModel(ratings)
+        dayCount += 1
 
 
 def getUserSatisfactionRatings(userId):
