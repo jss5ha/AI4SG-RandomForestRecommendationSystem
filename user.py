@@ -28,7 +28,7 @@ class User:
         self.activityLevel = userData[5]
         self.goal = userData[6]
         self.dietaryRestrictions = userData[7].split(
-            ":") if not math.isnan(userData[7]) else []
+            ":") if type(userData[7]) == str else []
 
     def setNewUserData(self):
         self.setGender()
