@@ -20,9 +20,10 @@ def getFilteredRecipes():
     return filteredRecipesDataFrame
 
 
-def showRecommendations():
+def showRecommendations(userId):
     recommendSameRecipes = True
     recommendedRecipes = []
+    allRatings = []
     dayCount = 1
     while dayCount <= 24:
         while True:
@@ -47,6 +48,8 @@ def showRecommendations():
             ratings.append(
                 int(input(f"Please rate today's recipe - {recipe} (min = 0, max = 5): ")) / 5)
 
+        allRatings.extend(ratings)
+
         # update model
         recommendationSystem.retrainModel(ratings)
 
@@ -55,6 +58,9 @@ def showRecommendations():
                 "\nPlease take the survey: https://virginia.az1.qualtrics.com/jfe/form/SV_9oi2R7WEZb6tF9c")
 
         dayCount += 1
+
+    allRatingsPath = f"user_recipe_ratings/{userId}.pickle"
+    pickle.dump(allRatings, open(allRatingsPath, "wb"))
 
 
 def getUserSatisfactionRatings(userId):
@@ -80,7 +86,7 @@ if __name__ == "__main__":
     recommendationSystem = RecommendationSystem(
         user.userId, filteredRecipesDataFrame)
 
-    showRecommendations()
+    showRecommendations(user.userId)
     recommendationSystem.save()
     # collect user's overall satisfaction level
     getUserSatisfactionRatings(user.userId)
