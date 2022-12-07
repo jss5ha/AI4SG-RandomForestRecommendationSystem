@@ -45,8 +45,13 @@ def showRecommendations(userId):
         ratings = []
 
         for idx, recipe in enumerate(recommendedRecipes):
-            ratings.append(
-                int(input(f"Please rate today's recipe - {recipe} (min = 0, max = 5): ")) / 5)
+            rating = input(
+                f"Please rate today's recipe - {recipe} (min = 0, max = 5): ")
+            while not str(rating).isnumeric() or int(rating) < 0 or int(rating) > 5:
+                print("Invalid rating")
+                rating = input(
+                    f"Please rate today's recipe - {recipe} (min = 0, max = 5): ")
+            ratings.append(int(rating) / 5)
 
         allRatings.extend(ratings)
 
