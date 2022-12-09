@@ -25,7 +25,8 @@ def showRecommendations(userId):
     recommendedRecipes = []
     allRatings = []
     dayCount = 1
-    while dayCount <= 5:
+    print("\nYou will be given recommendations for 24 days.")
+    while dayCount <= 24:
         while True:
             recommendedRecipes = recommendationSystem.getRecommendations(
                 recommendSameRecipes)
