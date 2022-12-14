@@ -1,4 +1,4 @@
-# Food Recommendation System using Random Forest
+# Healthy Diet Recommendation System using Random Forest
 
 `python main.py`
 
